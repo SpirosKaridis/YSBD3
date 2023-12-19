@@ -1,15 +1,30 @@
 #ifndef HP_FILE_H
 #define HP_FILE_H
+#include <record.h>
 #include <stddef.h>
 
 #include "record.h"
 #include "bf.h"
 
-typedef struct HP_info{
+/* Η δομή HP_info κρατάει μεταδεδομένα που σχετίζονται με το αρχείο σωρού*/
+typedef struct {
+    int block_size; //the size of each block (how many records it can contain)
+    int block_id;  //the id of the block that contains the metadata
+    int size_of_file; //the size of the file (how many blocks it contains)
+    int records; //the number of records in the file
+} HP_info;
+
+typedef struct {
+    int entries;
+    int bytes_occupied;
+    int block_id;
+} HP_block_info;
+
+/*typedef struct HP_info{    AYTH HTAN H DOSMENH THN AFHNW EDW****
     int lastBlockId;
     int totalRecords;
     int blockCapacity;
-} HP_info;
+} HP_info; */
 
 extern struct HP_info openFiles[20]; 
 
