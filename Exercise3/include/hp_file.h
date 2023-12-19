@@ -20,7 +20,7 @@ typedef struct {
     int block_id;
 } HP_block_info;
 
-/*typedef struct HP_info{    AYTH HTAN H DOSMENH THN AFHNW EDW****
+/*typedef struct HP_info{    ****AYTH HTAN H DOSMENH THN AFHNW EDW****
     int lastBlockId;
     int totalRecords;
     int blockCapacity;
