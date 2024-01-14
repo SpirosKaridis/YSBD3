@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "merge.h"
+#include "hp_file.h"
 
 #define RECORDS_NUM 500 // you can change it if you want
 #define FILE_NAME "data.db"
