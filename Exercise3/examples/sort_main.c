@@ -26,7 +26,18 @@ int main() {
   //
   BF_Init(LRU);
   int file_desc = createAndPopulateHeapFile(FILE_NAME);
+
+
+  //spase to arxeio se chunks
+
+  printf("Before sorting: \n");
+  HP_PrintAllEntries(file_desc);
+
   sortPhase(file_desc,chunkSize);
+
+  printf("After sorting: \n");
+  HP_PrintAllEntries(file_desc);
+
   mergePhases(file_desc,chunkSize,bWay,&fileIterator);
 }
 
