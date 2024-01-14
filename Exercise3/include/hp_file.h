@@ -1,87 +1,54 @@
 #ifndef HP_FILE_H
 #define HP_FILE_H
-#include <record.h>
+#include <stddef.h>
 
-#define HP_ERROR -1
+#include "record.h"
+#include "bf.h"
 
-/* Η δομή HP_info κρατάει μεταδεδομένα που σχετίζονται με το αρχείο σωρού*/
-typedef struct {
-    int block_size; //the size of each block (how many records it can contain)
-    int block_id;  //the id of the block that contains the metadata
-    int size_of_file; //the size of the file (how many blocks it contains)
-    int records; //the number of records in the file
+typedef struct HP_info{
+    int lastBlockId;
+    int totalRecords;
+    int blockCapacity;
 } HP_info;
 
-typedef struct {
-    int entries;
-    int bytes_occupied;
-    int block_id;
-} HP_block_info;
+extern struct HP_info openFiles[20]; 
+
+/*The function HP_CreateFile is used to create and appropriately initialize an empty heap file with the given fileName. If the execution is successful, it returns 0; otherwise, it returns -1.*/
+int HP_CreateFile(char *fileName);
+
+/* The function HP_OpenFile opens the file with the name filename. The variable *file_desc refers to the opening identifier of this file as derived from BF_OpenFile.*/
+int HP_OpenFile(char *fileName, int *file_desc);
+
+/* The function HP_CloseFile closes the file identified by the descriptor file_desc. If the operation is successful, it returns 0; otherwise, it returns -1.*/
+int HP_CloseFile(int file_desc);
+
+/* The function HP_InsertEntry is used to insert a record into the heap file. The identifier for the file is file_desc, and the record to be inserted is specified by the record structure. If the operation is successful, it returns 1; otherwise, it returns -1.*/
+int HP_InsertEntry(int file_desc, Record record);
+
+/* The function HP_GetRecord is designed to retrieve a record from a heap file specified by the file descriptor file_desc. It takes three parameters: blockId, which indicates the block from which to retrieve the record, cursor, which specifies the position of the record within that block, and record, which is a pointer to a Record structure. The retrieved record will be stored in the memory location pointed to by the record parameter.*/
+int HP_GetRecord( int file_desc, int blockId, int cursor, Record* record);
+
+/* The function HP_UpdateRecord updates or sets a record in a heap file specified by the file descriptor file_desc. It takes four parameters: blockId, which indicates the block where the record will be updated, cursor, which specifies the position of the record within that block, and record, which is the new data that will replace the existing record at the specified location. If the operation is successful, the function returns 1; otherwise, it returns -1.*/
+int HP_UpdateRecord(int file_desc, int blockId, int cursor,Record record);
+
+/* The function HP_Unpin is designed to release the block identified by blockId in the heap file associated with the descriptor file_desc. If the unpin is successful, it returns 0; otherwise, it returns -1.*/
+int HP_Unpin(int file_desc, int blockId);
+
+// Prints all entries(records) stored in the heap file.
+int HP_PrintAllEntries(int file_desc);
+
+// Retrieves the current record count in a specified block.
+int HP_GetRecordCounter(int file_desc, int blockId);
+
+// Returns the identifier of the last block in the heap file.
+int HP_GetIdOfLastBlock(int file_desc);
+
+// Retrieves the number of records that can fit in a block of the heap file.
+int HP_GetMaxRecordsInBlock(int file_desc);
+
+// Prints all entries(records) contained in the specified block of the heap file.
+int HP_PrintBlockEntries(int file_desc, int blockId);
 
 
-void printInfo(HP_info *); //just prints metadata
-
-/*Η συνάρτηση HP_CreateFile χρησιμοποιείται για τη δημιουργία και
-κατάλληλη αρχικοποίηση ενός άδειου αρχείου σωρού με όνομα fileName.
-Σε περίπτωση που εκτελεστεί επιτυχώς, επιστρέφεται 0, ενώ σε
-διαφορετική περίπτωση -1.*/
-int HP_CreateFile(
-    char *fileName /*όνομα αρχείου*/);
-
-/* Η συνάρτηση HP_OpenFile ανοίγει το αρχείο με όνομα filename και
-διαβάζει από το πρώτο μπλοκ την πληροφορία που αφορά το αρχείο σωρού.
-Κατόπιν, ενημερώνεται μια δομή που κρατάτε όσες πληροφορίες κρίνονται
-αναγκαίες για το αρχείο αυτό προκειμένου να μπορείτε να επεξεργαστείτε
-στη συνέχεια τις εγγραφές του. Η μεταβλητή *file_desc αναφέρεται στο 
-αναγνωριστικό ανοίγματος του συγκεκριμένου αρχείου όπως προκύπτει από την 
-BF_OpenFile.
-*/
-HP_info* HP_OpenFile(char *fileName,    /* όνομα αρχείου */  
-                     int *file_desc    /* προσδιοριστικό ανοίγματος αρχείου όπως δίνεται από την BF_OpenFile */
-                    );
-
-
-
-/* Η συνάρτηση HP_CloseFile κλείνει το αρχείο που προσδιορίζεται
-από το αναγνωριστικό file_desc. Σε περίπτωση που εκτελεστεί επιτυχώς,
-επιστρέφεται 0, ενώ σε διαφορετική περίπτωση -1. Η συνάρτηση είναι
-υπεύθυνη και για την αποδέσμευση της μνήμης που καταλαμβάνει η δομή
-που περάστηκε ως παράμετρος, στην περίπτωση που το κλείσιμο
-πραγματοποιήθηκε επιτυχώς.
-*/
-int HP_CloseFile(int file_desc,         /* προσδιοριστικό ανοίγματος αρχείου όπως δίνεται από την BF_OpenFile */
-                 HP_info* header_info   /* η κεφαλή που περιέχει τα δεδομένα του αρχείου */
-                 );
-
-/* Η συνάρτηση HP_InsertEntry χρησιμοποιείται για την εισαγωγή μιας
-εγγραφής στο αρχείο σωρού. Το αναγνωριστικό για το αρχείο είναι file_desc,  
-τα μεταδεδομένα του αρχείου βρίσκονται στη δομή header_info, ενώ η εγγραφή προς εισαγωγή
-προσδιορίζεται από τη δομή record. Σε περίπτωση που εκτελεστεί
-επιτυχώς, επιστρέφετε τον αριθμό του block στο οποίο έγινε η εισαγωγή
-(blockId) , ενώ σε διαφορετική περίπτωση -1.
-*/
-int HP_InsertEntry(
-    int file_desc,
-    HP_info* header_info, /* επικεφαλίδα του αρχείου*/
-    Record record /* δομή που προσδιορίζει την εγγραφή */ );
-
-/*Η συνάρτηση αυτή χρησιμοποιείται για την εκτύπωση όλων των εγγραφών
-που υπάρχουν στο αρχείο σωρού οι οποίες έχουν τιμή στο
-πεδίο-κλειδί ίση με value. Η πρώτη δομή δίνει πληροφορία για το αρχείο
-σωρού, όπως αυτή είχε επιστραφεί από την HP_OpenFile.
-Για κάθε εγγραφή που υπάρχει στο αρχείο και έχει τιμή στο πεδίο id
-ίση με value, εκτυπώνονται τα περιεχόμενά της (συμπεριλαμβανομένου
-και του πεδίου-κλειδιού). Να επιστρέφεται επίσης το πλήθος των blocks που
-διαβάστηκαν μέχρι να βρεθούν όλες οι εγγραφές. Σε περίπτωση επιτυχίας
-επιστρέφει το πλήθος των blocks που διαβάστηκαν, ενώ σε περίπτωση λάθους επιστρέφει -1.
-*/
-int HP_GetAllEntries(
-    int file_desc,
-    HP_info* header_info, /* επικεφαλίδα του αρχείου*/
-    int id                /* η τιμή id της εγγραφής στην οποία πραγματοποιείται η αναζήτηση*/
-);
-
-
-void PrintData(Record *);
 
 #endif // HP_FILE_H
