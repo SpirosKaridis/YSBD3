@@ -11,7 +11,7 @@ CHUNK_Iterator CHUNK_CreateIterator(int fileDesc, int blocksInChunk) {
     CHUNK_Iterator iterator;
     iterator.file_desc = fileDesc;
     iterator.current = 1; // Assuming the chunks start from block 1
-    iterator.lastBlocksID = HP_GetIdOfLastBlock(fileDesc); // Initially unknown
+    iterator.lastBlocksID = HP_GetIdOfLastBlock(fileDesc); 
     iterator.blocksInChunk = blocksInChunk;
 
     return iterator;
@@ -24,10 +24,12 @@ int CHUNK_GetNext(CHUNK_Iterator *iterator, CHUNK *chunk) {
         chunk->file_desc = iterator->file_desc;
         chunk->from_BlockId = iterator->current;
 
-       if((iterator->current + iterator->blocksInChunk - 1) >= iterator->lastBlocksID){//this is the last chunk
+        //take the edge case for the last chunk 
+       if((iterator->current + iterator->blocksInChunk - 1) >= iterator->lastBlocksID){
             chunk->to_BlockId = iterator->lastBlocksID;
-            chunk->blocksInChunk = chunk->to_BlockId - chunk->from_BlockId + 1;
+            chunk->blocksInChunk = chunk->to_BlockId - chunk->from_BlockId + 1; //get the number of blocks in the last chunk 
 
+            //get the number of records in the last chunk 
             chunk->recordsInChunk = 0;
             for(int i = chunk->from_BlockId; i <= chunk->to_BlockId; i++){
                 chunk->recordsInChunk += HP_GetRecordCounter(iterator->file_desc, i);
@@ -109,6 +111,7 @@ void CHUNK_Print(CHUNK chunk) {
 CHUNK_RecordIterator CHUNK_CreateRecordIterator(CHUNK *chunk) {
     CHUNK_RecordIterator iterator;
 
+    //if chunk pointer is NULL 
     if (chunk == NULL) { 
         CHUNK chunk = {-1,-1,-1,-1,-1};
         iterator.chunk = chunk;
