@@ -1,5 +1,6 @@
 #include <merge.h>
 #include <stdio.h>
+#include <string.h>
 #include "chunk.h"
 #include "merge.h"
 #include "record.h"
@@ -12,7 +13,7 @@ CHUNK_Iterator CHUNK_CreateIterator(int fileDesc, int blocksInChunk) {
     CHUNK_Iterator iterator;
     iterator.file_desc = fileDesc;
     iterator.current = 1; // Assuming the chunks start from block 1
-    iterator.lastBlocksID = 0; // Initially unknown
+    iterator.lastBlocksID = HP_GetIdOfLastBlock(fileDesc); // Initially unknown
     iterator.blocksInChunk = blocksInChunk;
 
     return iterator;
@@ -23,10 +24,21 @@ int CHUNK_GetNext(CHUNK_Iterator *iterator, CHUNK *chunk) {
     if (iterator->current <= iterator->lastBlocksID) {
         chunk->file_desc = iterator->file_desc;
         chunk->from_BlockId = iterator->current;
-        chunk->to_BlockId = iterator->current + iterator->blocksInChunk - 1;
-        chunk->recordsInChunk = 0; // Initialize to zero, update based on actual records later
-        chunk->blocksInChunk = iterator->blocksInChunk;
 
+        if((iterator->current + iterator->blocksInChunk) >= iterator->lastBlocksID){//this is the last chunk
+            chunk->to_BlockId = HP_GetIdOfLastBlock(iterator->file_desc);
+            chunk->blocksInChunk = chunk->to_BlockId - chunk->from_BlockId + 1;
+
+            chunk->recordsInChunk = 0;
+            for(int i = chunk->from_BlockId; i <= chunk->to_BlockId; i++){
+                chunk->recordsInChunk += HP_GetRecordCounter(iterator->file_desc, i);
+            }
+        }else{
+            chunk->to_BlockId = iterator->current + iterator->blocksInChunk - 1;
+            chunk->recordsInChunk = iterator->blocksInChunk * HP_GetMaxRecordsInBlock(iterator->file_desc);
+            chunk->blocksInChunk = iterator->blocksInChunk;
+        }
+        
         // Increment the iterator for the next iteration
         iterator->current += iterator->blocksInChunk;
 
@@ -61,7 +73,7 @@ int CHUNK_GetIthRecordInChunk(CHUNK *chunk, int i, Record *record) {
 
 int CHUNK_UpdateIthRecord(CHUNK *chunk, int i, Record record) {
     if (i >= 0 && i < chunk->recordsInChunk) {
-        int blockId = chunk->from_BlockId + i / BF_BLOCK_SIZE;
+        int blockId = chunk->from_BlockId + i / BF_BLOCK_SIZE - 1;
         int cursor = i % BF_BLOCK_SIZE;
 
         BF_Block *bfBlock;
@@ -71,7 +83,9 @@ int CHUNK_UpdateIthRecord(CHUNK *chunk, int i, Record record) {
         char *data = BF_Block_GetData(bfBlock);
         Record *blockRecords = (Record *)(data + sizeof(int)); // Skip the first int, which stores the number of records
 
-        blockRecords[cursor] = record;
+        HP_UpdateRecord(chunk->file_desc, blockId, cursor + sizeof(int), record);
+        //memcpy(data + cursor * sizeof(record) + sizeof(int), &record, sizeof(record));
+        //blockRecords[cursor] = record;
         BF_Block_SetDirty(bfBlock);
 
         CALL_BF(BF_UnpinBlock(bfBlock));

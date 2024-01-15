@@ -23,8 +23,9 @@ bool shouldSwap(Record* rec1, Record* rec2) {
 void sort_FileInChunks(int file_desc, int numBlocksInChunk) {
     CHUNK_Iterator iterator = CHUNK_CreateIterator(file_desc, numBlocksInChunk);
     CHUNK chunk;
-
-    while (CHUNK_GetNext(&iterator, &chunk) == 0) {
+    
+    while (CHUNK_GetNext(&iterator, &chunk)) {
+        printf("im here\n");
         sort_Chunk(&chunk);
     }
 }
@@ -63,7 +64,7 @@ void quicksort(Record* arr, int low, int high) {
 void sort_Chunk(CHUNK* chunk) {
     // Assuming chunk->recordsInChunk represents the total number of records in the chunk
     Record* records = (Record*)malloc(chunk->recordsInChunk * sizeof(Record));
-
+    
     // Load all records from the chunk
     for (int i = 0; i < chunk->recordsInChunk; i++) {
         if (CHUNK_GetIthRecordInChunk(chunk, i, &records[i]) == -1) {
@@ -73,7 +74,7 @@ void sort_Chunk(CHUNK* chunk) {
             return;
         }
     }
-
+    
     // Apply Quicksort to the array of records
     quicksort(records, 0, chunk->recordsInChunk - 1);
 

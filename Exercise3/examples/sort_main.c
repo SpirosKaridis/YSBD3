@@ -3,8 +3,9 @@
 #include <string.h>
 #include "merge.h"
 #include "hp_file.h"
+#include "sort.h"
 
-#define RECORDS_NUM 500 // you can change it if you want
+#define RECORDS_NUM 20 // you can change it if you want
 #define FILE_NAME "data.db"
 #define OUT_NAME "out"
 
@@ -20,7 +21,7 @@ void mergePhases(int inputFileDesc,int chunkSize,int bWay, int* fileCounter);
 int nextOutputFile(int* fileCounter);
 
 int main() {
-  int chunkSize=5;
+  int chunkSize=2;
   int bWay= 4;
   int fileIterator;
   //
@@ -28,15 +29,13 @@ int main() {
   int file_desc = createAndPopulateHeapFile(FILE_NAME);
 
 
-  //spase to arxeio se chunks
-
   printf("Before sorting: \n");
-  HP_PrintAllEntries(file_desc);
+  //HP_PrintAllEntries(file_desc);
 
   sortPhase(file_desc,chunkSize);
 
   printf("After sorting: \n");
-  HP_PrintAllEntries(file_desc);
+  //HP_PrintAllEntries(file_desc);
 
   mergePhases(file_desc,chunkSize,bWay,&fileIterator);
 }
@@ -47,13 +46,14 @@ int createAndPopulateHeapFile(char* filename){
   int file_desc;
   HP_OpenFile(filename, &file_desc);
 
-  Record record;
+  Record record, *temp = malloc(sizeof(Record) * RECORDS_NUM);
   srand(12569874);
   for (int id = 0; id < RECORDS_NUM; ++id)
   {
     record = randomRecord();
     HP_InsertEntry(file_desc, record);
   }
+
   return file_desc;
 }
 
