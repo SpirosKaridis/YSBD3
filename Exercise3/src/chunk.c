@@ -105,14 +105,25 @@ void CHUNK_Print(CHUNK chunk) {
     printf("Blocks in Chunk: %d\n", chunk.blocksInChunk);
 }
 
+
 CHUNK_RecordIterator CHUNK_CreateRecordIterator(CHUNK *chunk) {
     CHUNK_RecordIterator iterator;
+
+    if (chunk == NULL) { 
+        CHUNK chunk = {-1,-1,-1,-1,-1};
+        iterator.chunk = chunk;
+        iterator.currentBlockId = -1;  
+        iterator.cursor = -1;          
+        return iterator;
+    }
+
     iterator.chunk = *chunk;
     iterator.currentBlockId = chunk->from_BlockId;
     iterator.cursor = 0;
 
     return iterator;
 }
+
 
 int CHUNK_GetNextRecord(CHUNK_RecordIterator *iterator, Record *record) {
     if (iterator->currentBlockId <= iterator->chunk.to_BlockId) {
@@ -125,7 +136,8 @@ int CHUNK_GetNextRecord(CHUNK_RecordIterator *iterator, Record *record) {
 
         *record = blockRecords[iterator->cursor];
 
-        if (iterator->cursor < BF_BLOCK_SIZE - 1) {
+        //if (iterator->cursor < BF_BLOCK_SIZE - 1) {
+        if (iterator->cursor < HP_GetMaxRecordsInBlock(iterator->chunk.file_desc)) {
             // Move to the next record in the block
             iterator->cursor++;
         } else {
@@ -142,6 +154,7 @@ int CHUNK_GetNextRecord(CHUNK_RecordIterator *iterator, Record *record) {
 
     return -1; // No more records in the chunk
 }
+
 
 
 
