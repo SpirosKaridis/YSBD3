@@ -25,10 +25,13 @@ int main() {
   //
   BF_Init(LRU);
   int file_desc = createAndPopulateHeapFile(FILE_NAME);
+
+  printf("Sorting chunks...\n");
   sortPhase(file_desc,chunkSize);
-  printf("sorting finished!\n");
+  HP_PrintAllEntries(file_desc);
+
+  printf("\nMerging chunks...\n");
   mergePhases(file_desc,chunkSize,bWay,&fileIterator);
-  printf("merging finished!\n");
 }
 
 int createAndPopulateHeapFile(char* filename){
@@ -63,7 +66,6 @@ void mergePhases(int inputFileDesc,int chunkSize,int bWay, int* fileCounter){
     inputFileDesc = oututFileDesc;
   }
 
-  printf("\nPrinting new merge-sorted file: \n");
   HP_PrintAllEntries(oututFileDesc);
 
   HP_CloseFile(oututFileDesc);
