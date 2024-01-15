@@ -52,23 +52,6 @@ void mergeSort(Record *arr, int n) {
     }
 }
 
-// Assuming there is a function to write a record to a file
-int writeRecordToFile(int fileDesc, Record *record) {
-    // Seek to the end of the file to append the record
-    if (lseek(fileDesc, 0, SEEK_END) == -1) {
-        perror("Error seeking to the end of the file");
-        return -1;
-    }
-
-    // Write the record to the file
-    if (write(fileDesc, record, sizeof(Record)) == -1) {
-        perror("Error writing record to file");
-        return -1;
-    }
-
-    return 0;  // Return 0 for success, -1 for failure
-}
-
 void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
     // Calculate the total number of records in each merge step
     int totalRecordsInMerge = chunkSize * bWay;
@@ -120,7 +103,7 @@ void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
             // Assuming there is a function to write a record to a file
             // You may need to replace this with the appropriate function
             // depending on your file structure
-            if (writeRecordToFile(output_FileDesc, &records[i]) != 0) {
+            if (HP_InsertEntry(output_FileDesc, records[i]) != 1) {
                 // Handle error
                 fprintf(stderr, "Error writing record to output file.\n");
                 free(records);
