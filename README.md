@@ -1,2 +1,11 @@
-<h2>Kante notepad **AYTO** to read me</h2>
-mporei na to xrhsimopoihsoume kai gia to teliko readme
+Μέλη Ομάδας: 
+    Κοντοχρήστος Χρήστος Α.Μ.: 1115202000090
+        Υλοποίησα το CHUNK library.
+    Νικέλλη Εμμανουέλα Α.Μ.: 1115202000152
+        Υλοποίησα τo SORT library.
+    Καρύδης Σπυρίδων Α.Μ.: 1115202000256
+        Υλοποίησα τo MERGE.
+
+
+Για το sort library:
+    Οι αλλαγές που έκανα στις συναρτήσεις της Sort που παρήγαγε το ChatGPT ήταν πολύ μικρές. Συγκεκριμένα, άλλαξα τον τελεστή σύγκρισης στην shouldSwap ώστε η ταξινόμιση να γίνεται σε αύξουσα σειρά αντί για φθίνουσα που ήταν αρχικά και έκανα αλλαγή της συνθήκης "if (CHUNK_GetIthRecordInChunk(chunk, i, &records[i]) == 0)" στην sort_Chunk σε "if (CHUNK_GetIthRecordInChunk(chunk, i, &records[i]) == -1)" ώστε να ταιριάζει με την υλοποίηση της CHUNK_GetIthRecordInChunk. Ο υπόλοιπος κώδικας είναι ακριβώς αυτός που εφτιαξε το ChatGPT.

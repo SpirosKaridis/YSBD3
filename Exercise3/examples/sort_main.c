@@ -3,7 +3,7 @@
 #include <string.h>
 #include "merge.h"
 
-#define RECORDS_NUM 20 // you can change it if you want
+#define RECORDS_NUM 500 // you can change it if you want
 #define FILE_NAME "data.db"
 #define OUT_NAME "out"
 
@@ -62,6 +62,10 @@ void mergePhases(int inputFileDesc,int chunkSize,int bWay, int* fileCounter){
     chunkSize*=bWay;
     inputFileDesc = oututFileDesc;
   }
+
+  printf("\nPrinting new merge-sorted file: \n");
+  HP_PrintAllEntries(oututFileDesc);
+
   HP_CloseFile(oututFileDesc);
 }
 
