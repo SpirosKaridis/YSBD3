@@ -5,7 +5,7 @@
 #include "hp_file.h"
 #include "sort.h"
 
-#define RECORDS_NUM 20 // you can change it if you want
+#define RECORDS_NUM 500 // you can change it if you want
 #define FILE_NAME "data.db"
 #define OUT_NAME "out"
 
@@ -21,23 +21,23 @@ void mergePhases(int inputFileDesc,int chunkSize,int bWay, int* fileCounter);
 int nextOutputFile(int* fileCounter);
 
 int main() {
-  int chunkSize=2;
+  int chunkSize=5;
   int bWay= 4;
   int fileIterator;
-  //
+
   BF_Init(LRU);
   int file_desc = createAndPopulateHeapFile(FILE_NAME);
 
 
   printf("Before sorting: \n");
-  //HP_PrintAllEntries(file_desc);
+  HP_PrintAllEntries(file_desc);
 
   sortPhase(file_desc,chunkSize);
 
   printf("After sorting: \n");
-  //HP_PrintAllEntries(file_desc);
+  HP_PrintAllEntries(file_desc);
 
-  mergePhases(file_desc,chunkSize,bWay,&fileIterator);
+  //mergePhases(file_desc,chunkSize,bWay,&fileIterator);
 }
 
 int createAndPopulateHeapFile(char* filename){

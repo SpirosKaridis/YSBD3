@@ -14,9 +14,9 @@ bool shouldSwap(Record* rec1, Record* rec2) {
     // For example, compare based on name and surname
     int cmp = strcmp(rec1->name, rec2->name);
     if (cmp == 0) {
-        return strcmp(rec1->surname, rec2->surname) > 0;
+        return strcmp(rec1->surname, rec2->surname) < 0;
     }
-    return cmp > 0;
+    return cmp < 0;
 }
 
 
@@ -25,7 +25,6 @@ void sort_FileInChunks(int file_desc, int numBlocksInChunk) {
     CHUNK chunk;
     
     while (CHUNK_GetNext(&iterator, &chunk)) {
-        printf("im here\n");
         sort_Chunk(&chunk);
     }
 }
@@ -74,7 +73,7 @@ void sort_Chunk(CHUNK* chunk) {
             return;
         }
     }
-    
+
     // Apply Quicksort to the array of records
     quicksort(records, 0, chunk->recordsInChunk - 1);
 
