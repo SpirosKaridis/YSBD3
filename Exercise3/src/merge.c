@@ -52,9 +52,28 @@ void mergeSort(Record *arr, int n) {
     }
 }
 
+// Assuming there is a function to write a record to a file
+int writeRecordToFile(int fileDesc, Record *record) {
+    // Seek to the end of the file to append the record
+    if (lseek(fileDesc, 0, SEEK_END) == -1) {
+        perror("Error seeking to the end of the file");
+        return -1;
+    }
+
+    // Write the record to the file
+    if (write(fileDesc, record, sizeof(Record)) == -1) {
+        perror("Error writing record to file");
+        return -1;
+    }
+
+    return 0;  // Return 0 for success, -1 for failure
+}
+
 void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
     // Calculate the total number of records in each merge step
-    int totalRecordsInMerge = chunkSize * bWay;
+
+    //int totalRecordsInMerge = chunkSize * bWay;
+    int totalRecordsInMerge = chunkSize * HP_GetMaxRecordsInBlock(input_FileDesc) * bWay;
 
     // Allocate memory for an array to hold the records
     Record *records = (Record *)malloc(totalRecordsInMerge * sizeof(Record));
@@ -75,15 +94,38 @@ void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
         return;
     }
 
+
     // Initialize the record iterators
-    for (int i = 0; i < bWay; i++) {
-        recordIterators[i] = CHUNK_CreateRecordIterator(NULL);
-    }
+    // for (int i = 0; i < bWay; i++) {
+    //     recordIterators[i] = CHUNK_CreateRecordIterator(NULL);
+    // }
 
     // Iterate through the input chunks
     CHUNK_Iterator inputIterator = CHUNK_CreateIterator(input_FileDesc, chunkSize);
 
-    while (CHUNK_GetNext(&inputIterator, &recordIterators[0].chunk) == 0) {
+    // Initialize the record iterators with actual chunks
+    for (int i = 0; i < bWay; i++) {
+
+        CHUNK nextChunk;
+        if (CHUNK_GetNext(&inputIterator, &nextChunk) != 0) {
+            // Handle error
+            fprintf(stderr, "Error getting next chunk.\n");
+            free(records);
+            free(recordIterators);
+            return;
+        }
+
+        //printf("Iterator after CHUNK_GetNext: Current %d, LastBlocksID %d\n", inputIterator.current, inputIterator.lastBlocksID);
+        //inputIterator.lastBlocksID += chunkSize-1;
+
+        recordIterators[i] = CHUNK_CreateRecordIterator(&nextChunk);   
+        // printf("%d\n",recordIterators[i].chunk.recordsInChunk); 
+    }
+
+    // Iterate through the input chunks
+    CHUNK_Iterator InputIterator = CHUNK_CreateIterator(input_FileDesc, chunkSize);
+
+    while (CHUNK_GetNext(&InputIterator, &recordIterators[0].chunk) == 0) {
         // Load records from each chunk into the records array
         for (int i = 0; i < bWay; i++) {
             if (CHUNK_GetNextRecord(&recordIterators[i], &records[i]) != 0) {
@@ -95,6 +137,8 @@ void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
             }
         }
 
+        //InputIterator.lastBlocksID += chunkSize-1;
+
         // Sort the records array using merge sort
         mergeSort(records, totalRecordsInMerge);
 
@@ -103,6 +147,9 @@ void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
             // Assuming there is a function to write a record to a file
             // You may need to replace this with the appropriate function
             // depending on your file structure
+
+            //if (writeRecordToFile(output_FileDesc, &records[i]) != 0) {
+
             if (HP_InsertEntry(output_FileDesc, records[i]) != 1) {
                 // Handle error
                 fprintf(stderr, "Error writing record to output file.\n");
@@ -117,4 +164,5 @@ void merge(int input_FileDesc, int chunkSize, int bWay, int output_FileDesc) {
     free(records);
     free(recordIterators);
 }
+
 
