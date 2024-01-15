@@ -2,10 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "merge.h"
-#include "hp_file.h"
-#include "sort.h"
 
-#define RECORDS_NUM 500 // you can change it if you want
+#define RECORDS_NUM 20 // you can change it if you want
 #define FILE_NAME "data.db"
 #define OUT_NAME "out"
 
@@ -24,20 +22,13 @@ int main() {
   int chunkSize=5;
   int bWay= 4;
   int fileIterator;
-
+  //
   BF_Init(LRU);
   int file_desc = createAndPopulateHeapFile(FILE_NAME);
-
-
-  printf("Before sorting: \n");
-  HP_PrintAllEntries(file_desc);
-
   sortPhase(file_desc,chunkSize);
-
-  printf("After sorting: \n");
-  HP_PrintAllEntries(file_desc);
-
-  //mergePhases(file_desc,chunkSize,bWay,&fileIterator);
+  printf("sorting finished!\n");
+  mergePhases(file_desc,chunkSize,bWay,&fileIterator);
+  printf("merging finished!\n");
 }
 
 int createAndPopulateHeapFile(char* filename){
@@ -46,14 +37,13 @@ int createAndPopulateHeapFile(char* filename){
   int file_desc;
   HP_OpenFile(filename, &file_desc);
 
-  Record record, *temp = malloc(sizeof(Record) * RECORDS_NUM);
+  Record record;
   srand(12569874);
   for (int id = 0; id < RECORDS_NUM; ++id)
   {
     record = randomRecord();
     HP_InsertEntry(file_desc, record);
   }
-
   return file_desc;
 }
 
