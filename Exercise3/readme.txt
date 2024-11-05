@@ -1,11 +1,8 @@
-Για την δημιουργία του εκτελέσιμου το οποίο δείχνει
-τις δυνατότητες της βιβλιοθήκης BF, τρέξτε την εντολή:
+For the generation of the .exe which shows the capabilities of the BF library
+Run:
 
 make sort;
 
-Για να τρέξετε το εκτελέσιμο:
+To run the executable:
 
 ./build/sort_main
-
-
-peirama
