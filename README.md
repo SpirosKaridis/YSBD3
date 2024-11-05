@@ -1,7 +1,10 @@
 Team members:
--
--
-    Spiros Karidis     implemeted MERGE.
+    Christos Kontochristos
+        Implemented the CHUNK library.
+    Nikelli Emmanouela
+        Implemented the SORT library.
+    Spiros Karidis     
+        Implemeted MERGE.
 
 
 ChatGpt Conversation:
