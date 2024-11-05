@@ -1,9 +1,12 @@
 Team members:
-    Christos Kontochristos
+Christos Kontochristos
+
         Implemented the CHUNK library.
-    Nikelli Emmanouela
+Nikelli Emmanouela
+
         Implemented the SORT library.
-    Spiros Karidis     
+Spiros Karidis
+
         Implemeted MERGE.
 
 
