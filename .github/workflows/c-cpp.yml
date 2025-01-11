@@ -13,6 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make
-      run: make
-      
+    - name: make sort
+      run: make sort
+    - name: ./build/sort_main
+      run: ./build/sort_main
